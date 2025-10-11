@@ -87,8 +87,8 @@ export default function ParagonMagentoPage() {
 
       if (!connected) {
         const { paragon } = await import("@useparagon/connect")
-        paragon.connect("custom.magento")
-//        paragon.connect("magento")
+        paragon.connect("custom.magento", {})
+//        paragon.connect("magento", {})
       }
 
       const { error } = await supabase.from("integration_connections").upsert(

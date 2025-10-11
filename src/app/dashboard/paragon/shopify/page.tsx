@@ -81,7 +81,7 @@ export default function ParagonShopifyPage() {
 
       if (!connected) {
         const { paragon } = await import("@useparagon/connect")
-        paragon.connect("shopify")
+        paragon.connect("shopify", {})
       }
 
       const { error } = await supabase.from("integration_connections").upsert(

@@ -77,7 +77,7 @@ export function IntegrationView({ service, integration, logoUrl, disabled = fals
       // If using Paragon service and connecting, call paragon.connect()
       if (service === "Paragon" && !connected) {
         const { paragon } = await import('@useparagon/connect')
-        paragon.connect(integration.toLowerCase())
+        paragon.connect(integration.toLowerCase(), {})
       }
 
       // If using Integration App service and connecting, call integrationApp.integration().openNewConnection()
