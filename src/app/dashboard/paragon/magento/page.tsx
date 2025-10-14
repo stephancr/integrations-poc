@@ -295,6 +295,45 @@ export default function ParagonMagentoPage() {
 
             <Card>
               <CardHeader>
+                <CardTitle className="text-lg">Workflow: Get Product Variants</CardTitle>
+                <CardDescription>Retrieve variants for a specific product</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="sku">SKU</Label>
+                  <Input
+                    id="sku"
+                    type="text"
+                    placeholder="Enter product SKU"
+                    value={sku}
+                    onChange={(e) => setSku(e.target.value)}
+                  />
+                </div>
+
+                <Button onClick={workflowGetProductVariant} disabled={variantLoading}>
+                  {variantLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    "Workflow: Get Product Variants"
+                  )}
+                </Button>
+
+                {variantError && (
+                  <div className="rounded-md bg-muted p-4">
+                    <pre className="text-xs overflow-auto max-h-96">
+                      {variantError}
+                    </pre>
+                  </div>
+                )}
+                {variantResponse && <JsonViewer data={variantResponse} />}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
                 <CardTitle className="text-lg">Workflow: Get Products</CardTitle>
                 <CardDescription>Retrieve products</CardDescription>
               </CardHeader>
@@ -318,45 +357,6 @@ export default function ParagonMagentoPage() {
                   </div>
                 )}
                 {actionKitResponse && <JsonViewer data={actionKitResponse} />}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Workflow: Get Product Variants</CardTitle>
-                <CardDescription>Retrieve variants for a specific product</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="sku">SKU</Label>
-                  <Input
-                    id="sku"
-                    type="text"
-                    placeholder="Enter product SKU"
-                    value={sku}
-                    onChange={(e) => setSku(e.target.value)}
-                  />
-                </div>
-
-                <Button onClick={workflowGetProductVariant} disabled={variantLoading}>
-                  {variantLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Loading...
-                    </>
-                  ) : (
-                    "Workflow: Get Product Variant"
-                  )}
-                </Button>
-
-                {variantError && (
-                  <div className="rounded-md bg-muted p-4">
-                    <pre className="text-xs overflow-auto max-h-96">
-                      {variantError}
-                    </pre>
-                  </div>
-                )}
-                {variantResponse && <JsonViewer data={variantResponse} />}
               </CardContent>
             </Card>
           </CardContent>
