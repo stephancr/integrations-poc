@@ -21,8 +21,7 @@ interface ProfileFormProps {
     full_name: string | null
     paragon_token: string | null
     integration_app_token: string | null
-    merge_user_id: string | null
-    merge_link_token: string | null
+    merge_handler_id: string | null
   } | null
 }
 
@@ -31,8 +30,7 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
   const [fullName, setFullName] = useState(profile?.full_name || "")
   const [paragonToken, setParagonToken] = useState(profile?.paragon_token || "")
   const [integrationAppToken, setIntegrationAppToken] = useState(profile?.integration_app_token || "")
-  const [mergeUserId, setMergeUserId] = useState(profile?.merge_user_id || "")
-  const [mergeLinkToken, setMergeLinkToken] = useState(profile?.merge_link_token || "")
+  const [mergeHandlerId, setMergeHandlerId] = useState(profile?.merge_handler_id || "")
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
 
@@ -50,8 +48,7 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
           full_name: fullName,
           paragon_token: paragonToken,
           integration_app_token: integrationAppToken,
-          merge_user_id: mergeUserId,
-          merge_link_token: mergeLinkToken,
+          merge_handler_id: mergeHandlerId,
           updated_at: new Date().toISOString()
         })
         .eq("id", user.id)
@@ -120,27 +117,15 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="merge-user-id">Merge User ID</Label>
+            <Label htmlFor="merge-handler-id">Merge Handler User ID</Label>
             <Input
-              id="merge-user-id"
+              id="merge-handler-id"
               type="text"
-              value={mergeUserId}
-              onChange={(e) => setMergeUserId(e.target.value)}
-              placeholder="Enter your Merge user ID"
+              value={mergeHandlerId}
+              onChange={(e) => setMergeHandlerId(e.target.value)}
+              placeholder="Enter your Merge Handler User ID"
             />
-            <p className="text-xs text-muted-foreground">User ID for Merge integration</p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="merge-link-token">Merge Link Token</Label>
-            <Input
-              id="merge-link-token"
-              type="text"
-              value={mergeLinkToken}
-              onChange={(e) => setMergeLinkToken(e.target.value)}
-              placeholder="Enter your Merge link token"
-            />
-            <p className="text-xs text-muted-foreground">Link token for Merge integration authentication</p>
+            <p className="text-xs text-muted-foreground">Handler ID for Merge integration</p>
           </div>
 
           {message && (
