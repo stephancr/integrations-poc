@@ -1,7 +1,7 @@
 const DEFAULT_COMPANY_ID = "2c9b228f-da0f-46fd-9c7b-f97031ce0985-default"
 const DEFAULT_COMPANY_NAME = "Meta default"
 
-const apiKey = process.env.MERGE_API_KEY
+const apiKey = process.env.MERGE_HANDLER_API_KEY
 
 export async function getMergeRegisteredUserId(userId: string): Promise<string | null> {
   try {

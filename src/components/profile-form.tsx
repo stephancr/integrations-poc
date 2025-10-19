@@ -22,6 +22,7 @@ interface ProfileFormProps {
     paragon_token: string | null
     integration_app_token: string | null
     merge_handler_id: string | null
+    merge_ticketing_token: string | null
   } | null
 }
 
@@ -31,6 +32,7 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
   const [paragonToken, setParagonToken] = useState(profile?.paragon_token || "")
   const [integrationAppToken, setIntegrationAppToken] = useState(profile?.integration_app_token || "")
   const [mergeHandlerId, setMergeHandlerId] = useState(profile?.merge_handler_id || "")
+  const [mergeTicketingToken, setMergeTicketingToken] = useState(profile?.merge_ticketing_token || "")
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
 
@@ -49,6 +51,7 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
           paragon_token: paragonToken,
           integration_app_token: integrationAppToken,
           merge_handler_id: mergeHandlerId,
+          merge_ticketing_token: mergeTicketingToken,
           updated_at: new Date().toISOString()
         })
         .eq("id", user.id)
@@ -126,6 +129,18 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
               placeholder="Enter your Merge Handler User ID"
             />
             <p className="text-xs text-muted-foreground">Handler ID for Merge integration</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="merge-ticketing-token">Merge Ticketing API Token</Label>
+            <Input
+              id="merge-ticketing-token"
+              type="text"
+              value={mergeTicketingToken}
+              onChange={(e) => setMergeTicketingToken(e.target.value)}
+              placeholder="Enter your Merge Ticketing API token"
+            />
+            <p className="text-xs text-muted-foreground">Token for Merge Ticketing API access</p>
           </div>
 
           {message && (
