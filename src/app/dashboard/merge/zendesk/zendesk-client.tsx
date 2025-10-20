@@ -182,7 +182,7 @@ export default function ZendeskClient({ initialLinkToken }: ZendeskClientProps) 
     setApiError(null)
 
     try {
-      const response = await fetch("/api/merge/get-tickets", {
+      const response = await fetch("/api/merge/ticketing/get-tickets", {
         method: "GET",
       })
 
@@ -205,7 +205,7 @@ export default function ZendeskClient({ initialLinkToken }: ZendeskClientProps) 
     setRawApiError(null)
 
     try {
-      const response = await fetch("/api/merge/get-tickets-raw", {
+      const response = await fetch("/api/merge/ticketing/get-tickets-raw", {
         method: "GET",
       })
 

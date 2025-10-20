@@ -10,7 +10,7 @@ import { createBrowserClient } from "@supabase/ssr"
 import { Loader2 } from "lucide-react"
 import { JsonViewer } from "@/components/json-viewer"
 
-const PARAGON_PROJECT_ID = process.env.NEXT_PUBLIC_PARAGON_PROJECT_ID
+const PARAGON_PROJECT_ID = process.env.NEXT_PUBLIC_PARAGON_PROJECT_ID!
 
 export default function ParagonShopifyPage() {
   const [connected, setConnected] = useState(false)
@@ -81,6 +81,12 @@ export default function ParagonShopifyPage() {
 
       if (!connected) {
         const { paragon } = await import("@useparagon/connect")
+        // Initialize Paragon with the JWT token
+        paragon.authenticate(
+          PARAGON_PROJECT_ID,
+          await getParagonToken()
+        )
+        // Connect
         paragon.connect("shopify", {})
       }
 
@@ -132,39 +138,19 @@ export default function ParagonShopifyPage() {
     return paragonToken
   }
 
-  async function makeParagonRequest(
-    url: string,
-    options?: RequestInit
-  ): Promise<any> {
-    const paragonToken = await getParagonToken()
-
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        Authorization: `Bearer ${paragonToken}`,
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
-    })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(JSON.stringify(data, null, 2))
-    }
-
-    return data
-  }
-
   async function proxyGetProducts() {
     setApiLoading(true)
     setApiResponse(null)
     setApiError(null)
 
     try {
-      const data = await makeParagonRequest(
-        `https://proxy.useparagon.com/projects/${PARAGON_PROJECT_ID}/sdk/proxy/shopify/admin/api/2025-10/products.json`
-      )
+      const response = await fetch("/api/paragon/shopify/proxy-get-products")
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unknown error")
+      }
+
       setApiResponse(data)
     } catch (error) {
       setApiError(error instanceof Error ? error.message : "Unknown error")
@@ -179,18 +165,22 @@ export default function ParagonShopifyPage() {
     setActionKitError(null)
 
     try {
-      const data = await makeParagonRequest(
-        `https://actionkit.useparagon.com/projects/${PARAGON_PROJECT_ID}/actions/#SHOPIFY_GET_PRODUCTS`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            action: "SHOPIFY_GET_PRODUCTS",
-            parameters: {
-              productIds: productIds,
-            },
-          }),
-        }
-      )
+      const response = await fetch("/api/paragon/shopify/actionkit-get-products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productIds,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unknown error")
+      }
+
       setActionKitResponse(data)
     } catch (error) {
       setActionKitError(error instanceof Error ? error.message : "Unknown error")

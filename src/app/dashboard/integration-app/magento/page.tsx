@@ -118,85 +118,59 @@ export default function IntegrationAppMagentoPage() {
     }
   }
 
-  async function getIntegrationAppToken(): Promise<string | null> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return null
-    }
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("integration_app_token")
-      .eq("id", user.id)
-      .single()
-
-    return profile?.integration_app_token || null
-  }
-
-  async function makeApiRequest(
-    url: string,
-    body: any,
-    setLoading: (loading: boolean) => void,
-    setResponse: (response: any) => void,
-    setError: (error: string | null) => void
-  ) {
-    setLoading(true)
-    setResponse(null)
-    setError(null)
+  async function getProducts() {
+    setApiLoading(true)
+    setApiResponse(null)
+    setApiError(null)
 
     try {
-      const integrationAppToken = await getIntegrationAppToken()
-
-      if (!integrationAppToken) {
-        setError("No Integration App token found")
-        setLoading(false)
-        return
-      }
-
-      const response = await fetch(url, {
+      const response = await fetch("/api/integration-app/magento/get-products", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${integrationAppToken}`,
           "Content-Type": "application/json",
         },
-        body: body ? JSON.stringify(body) : undefined,
+        body: JSON.stringify({ cursor: cursor || undefined }),
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        setError(JSON.stringify(data, null, 2))
+        setApiError(JSON.stringify(data, null, 2))
       } else {
-        setResponse(data)
+        setApiResponse(data)
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Unknown error")
+      setApiError(error instanceof Error ? error.message : "Unknown error")
     } finally {
-      setLoading(false)
+      setApiLoading(false)
     }
   }
 
-  async function getProducts() {
-    await makeApiRequest(
-      "https://api.integration.app/connections/adobe-commerce/actions/get-products/run",
-      { cursor: cursor || undefined },
-      setApiLoading,
-      setApiResponse,
-      setApiError
-    )
-  }
-
   async function getProductsRaw() {
-    await makeApiRequest(
-      "https://api.integration.app/data-source-instances/68e6c7ba8b353b15c50e30c0/collection/list",
-      null,
-      setRawApiLoading,
-      setRawApiResponse,
-      setRawApiError
-    )
+    setRawApiLoading(true)
+    setRawApiResponse(null)
+    setRawApiError(null)
+
+    try {
+      const response = await fetch("/api/integration-app/magento/get-products-raw", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setRawApiError(JSON.stringify(data, null, 2))
+      } else {
+        setRawApiResponse(data)
+      }
+    } catch (error) {
+      setRawApiError(error instanceof Error ? error.message : "Unknown error")
+    } finally {
+      setRawApiLoading(false)
+    }
   }
 
   return (

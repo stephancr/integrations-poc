@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import {
-  getMergeRegisteredUserId,
-  createMergeRegisteredUser,
+  mergeGetRegisteredUserId,
+  mergeCreateRegisteredUser,
 } from "@/lib/merge-handler-api"
 
 export default async function MergePage() {
@@ -24,11 +24,11 @@ export default async function MergePage() {
   // Only fetch registered user if merge_handler_id is null
   if (!profile?.merge_handler_id) {
     // Try to get existing registered user ID
-    let mergeHandlerId = await getMergeRegisteredUserId(user.id)
+    let mergeHandlerId = await mergeGetRegisteredUserId(user.id)
 
     // If no match found, create new registered user and store the ID
     if (!mergeHandlerId) {
-      mergeHandlerId = await createMergeRegisteredUser(user.id, profile?.email || user.email || "")
+      mergeHandlerId = await mergeCreateRegisteredUser(user.id, profile?.email || user.email || "")
     }
 
     // Store the Merge Handler ID only after creating new user

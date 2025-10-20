@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { getTickets } from "@/lib/merge-unified-api"
+import { mergeGetTickets } from "@/lib/merge-unified-api"
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Call Merge API via unified API function
-    const data = await getTickets(accountToken)
+    const data = await mergeGetTickets(accountToken)
     return NextResponse.json(data)
   } catch (error) {
     console.error("Error in get-tickets API:", error)

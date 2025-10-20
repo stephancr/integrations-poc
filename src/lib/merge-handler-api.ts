@@ -3,22 +3,36 @@ const DEFAULT_COMPANY_NAME = "Meta default"
 
 const apiKey = process.env.MERGE_HANDLER_API_KEY
 
-export async function getMergeRegisteredUserId(userId: string): Promise<string | null> {
+async function makeMergeHandlerRequest(
+  url: string,
+  options?: RequestInit
+): Promise<any> {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(JSON.stringify(data, null, 2))
+  }
+
+  return data
+}
+
+export async function mergeGetRegisteredUserId(userId: string): Promise<string | null> {
   try {
-    const response = await fetch("https://ah-api.merge.dev/api/v1/registered-users", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-    })
-
-    if (!response.ok) {
-      console.error("Failed to fetch Merge registered users:", response.statusText)
-      return null
-    }
-
-    const data = await response.json()
+    const data = await makeMergeHandlerRequest(
+      "https://ah-api.merge.dev/api/v1/registered-users",
+      {
+        method: "GET",
+      }
+    )
 
     // Iterate through results to find matching user
     if (data.results && Array.isArray(data.results)) {
@@ -37,35 +51,28 @@ export async function getMergeRegisteredUserId(userId: string): Promise<string |
   }
 }
 
-export async function createMergeRegisteredUser(
+export async function mergeCreateRegisteredUser(
   userId: string,
   userEmail: string
 ): Promise<string | null> {
   try {
-    const response = await fetch("https://ah-api.merge.dev/api/v1/registered-users", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        origin_user_id: userId,
-        origin_user_name: userEmail,
-        shared_credential_group: {
-          origin_company_id: DEFAULT_COMPANY_ID,
-          origin_company_name: DEFAULT_COMPANY_NAME,
-          custom_groupings: {},
-        },
-        user_type: "HUMAN",
-      }),
-    })
+    const data = await makeMergeHandlerRequest(
+      "https://ah-api.merge.dev/api/v1/registered-users",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          origin_user_id: userId,
+          origin_user_name: userEmail,
+          shared_credential_group: {
+            origin_company_id: DEFAULT_COMPANY_ID,
+            origin_company_name: DEFAULT_COMPANY_NAME,
+            custom_groupings: {},
+          },
+          user_type: "HUMAN",
+        }),
+      }
+    )
 
-    if (!response.ok) {
-      console.error("Failed to create Merge registered user:", response.statusText)
-      return null
-    }
-
-    const data = await response.json()
     return data.id || null
   } catch (error) {
     console.error("Error creating Merge registered user:", error)
@@ -73,28 +80,18 @@ export async function createMergeRegisteredUser(
   }
 }
 
-export async function createMergeLinkToken(mergeUserId: string, integration: string): Promise<string | null> {
+export async function mergeCreateLinkToken(mergeUserId: string, integration: string): Promise<string | null> {
   try {
-    const response = await fetch(
+    const data = await makeMergeHandlerRequest(
       `https://ah-api.merge.dev/api/v1/registered-users/${mergeUserId}/link-token`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           connector: integration,
         }),
       }
     )
 
-    if (!response.ok) {
-      console.error("Failed to create Merge link token:", response.statusText)
-      return null
-    }
-
-    const data = await response.json()
     return data.link_token || null
   } catch (error) {
     console.error("Error creating Merge link token:", error)

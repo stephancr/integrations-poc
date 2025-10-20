@@ -10,10 +10,7 @@ import { createBrowserClient } from "@supabase/ssr"
 import { Loader2 } from "lucide-react"
 import { JsonViewer } from "@/components/json-viewer"
 
-const PARAGON_PROJECT_ID = process.env.NEXT_PUBLIC_PARAGON_PROJECT_ID
-const PARAGON_MAGENTO_INTEGRATION_ID = process.env.NEXT_PUBLIC_PARAGON_MAGENTO_INTEGRATION_ID
-const PARAGON_MAGENTO_WORKFLOW_GET_PRODUCTS = "ec7e8f63-e680-40b6-a75c-5ea3c7c1a154"
-const PARAGON_MAGENTO_WORKFLOW_GET_VARIANTS = "f814085c-5a83-4150-a641-504a9d514004"
+const PARAGON_PROJECT_ID = process.env.NEXT_PUBLIC_PARAGON_PROJECT_ID!
 
 export default function ParagonMagentoPage() {
   const [connected, setConnected] = useState(false)
@@ -87,8 +84,13 @@ export default function ParagonMagentoPage() {
 
       if (!connected) {
         const { paragon } = await import("@useparagon/connect")
+        // Initialize Paragon with the JWT token
+        paragon.authenticate(
+          PARAGON_PROJECT_ID,
+          await getParagonToken()
+        )
+        // Connect
         paragon.connect("custom.magento", {})
-//        paragon.connect("magento", {})
       }
 
       const { error } = await supabase.from("integration_connections").upsert(
@@ -139,40 +141,19 @@ export default function ParagonMagentoPage() {
     return paragonToken
   }
 
-  async function makeParagonRequest(
-    url: string,
-    options?: RequestInit
-  ): Promise<any> {
-    const paragonToken = await getParagonToken()
-
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        Authorization: `Bearer ${paragonToken}`,
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
-    })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(JSON.stringify(data, null, 2))
-    }
-
-    return data
-  }
-
   async function proxyGetProducts() {
     setApiLoading(true)
     setApiResponse(null)
     setApiError(null)
 
     try {
-      const data = await makeParagonRequest(
-        `https://proxy.useparagon.com/projects/${PARAGON_PROJECT_ID}/sdk/proxy/custom/${PARAGON_MAGENTO_INTEGRATION_ID}/rest/V1/products?searchCriteria[pageSize]=20&searchCriteria[currentPage]=1`
-//        `https://proxy.useparagon.com/projects/${PARAGON_PROJECT_ID}/sdk/proxy/magento/V1/products?searchCriteria[pageSize]=20&searchCriteria[currentPage]=1`
-      )
+      const response = await fetch("/api/paragon/magento/proxy-get-products")
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unknown error")
+      }
+
       setApiResponse(data)
     } catch (error) {
       setApiError(error instanceof Error ? error.message : "Unknown error")
@@ -187,13 +168,16 @@ export default function ParagonMagentoPage() {
     setActionKitError(null)
 
     try {
-      const data = await makeParagonRequest(
-        `https://zeus.useparagon.com/projects/${PARAGON_PROJECT_ID}/sdk/triggers/${PARAGON_MAGENTO_WORKFLOW_GET_PRODUCTS}`,
-        {
-          method: "POST",
-          body: JSON.stringify({}),
-        }
-      )
+      const response = await fetch("/api/paragon/magento/workflow-get-products", {
+        method: "POST",
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unknown error")
+      }
+
       setActionKitResponse(data)
     } catch (error) {
       setActionKitError(error instanceof Error ? error.message : "Unknown error")
@@ -208,13 +192,22 @@ export default function ParagonMagentoPage() {
     setVariantError(null)
 
     try {
-      const data = await makeParagonRequest(
-        `https://zeus.useparagon.com/projects/${PARAGON_PROJECT_ID}/sdk/triggers/${PARAGON_MAGENTO_WORKFLOW_GET_VARIANTS}?sku=${encodeURIComponent(sku)}`,
-        {
-          method: "POST",
-          body: JSON.stringify({}),
-        }
-      )
+      const response = await fetch("/api/paragon/magento/workflow-get-variants", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sku,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unknown error")
+      }
+
       setVariantResponse(data)
     } catch (error) {
       setVariantError(error instanceof Error ? error.message : "Unknown error")

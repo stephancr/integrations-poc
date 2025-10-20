@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { exchangeMergeAccountToken } from "@/lib/merge-unified-api"
+import { mergeExchangeAccountToken } from "@/lib/merge-unified-api"
 import { createClient } from "@/lib/supabase/server"
 
 export async function POST(request: NextRequest) {
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Exchanging public token for account token...
-    const account_token = await exchangeMergeAccountToken(public_token)
+    const account_token = await mergeExchangeAccountToken(public_token)
     if (!account_token) {
       return NextResponse.json(
         { error: "Failed to exchange token" },

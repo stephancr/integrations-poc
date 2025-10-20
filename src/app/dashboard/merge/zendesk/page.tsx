@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { createMergeLinkToken } from "@/lib/merge-unified-api"
+import { mergeCreateLinkToken } from "@/lib/merge-unified-api"
 import ZendeskClient from "./zendesk-client"
 
 export default async function MergeZendeskPage() {
@@ -23,7 +23,7 @@ export default async function MergeZendeskPage() {
     .single()
 
   // Generate fresh link token on server
-  linkToken = await createMergeLinkToken(
+  linkToken = await mergeCreateLinkToken(
     user.id,
     profile?.email,
     ["ticketing"],

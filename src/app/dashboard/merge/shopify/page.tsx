@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { createMergeLinkToken } from "@/lib/merge-handler-api"
+import { mergeCreateLinkToken } from "@/lib/merge-handler-api"
 import ShopifyClient from "./shopify-client"
 
 export default async function MergeShopifyPage() {
@@ -27,7 +27,7 @@ export default async function MergeShopifyPage() {
   // Only generate link token if merge_handler_id exists
   if (mergeHandlerId) {
     // Generate fresh link token on server
-    linkToken = await createMergeLinkToken(mergeHandlerId, "shopify")
+    linkToken = await mergeCreateLinkToken(mergeHandlerId, "shopify")
   }
 
   return <ShopifyClient initialLinkToken={linkToken} />
